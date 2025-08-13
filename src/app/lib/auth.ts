@@ -1,6 +1,5 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import Email from "next-auth/providers/email";
 import { connectToDatabase } from "./db";
 import User from "@/models/User";
 
@@ -37,10 +36,26 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     callbacks:{
-       async jwt({}) {}
-       async session({session,token}) {}
+       async jwt({token,user}) {
+        if (user){
+            token.id = user.id
+          }
+          return token
+       },
+       async session({session,token}) {
+          if(session.user){
+            session.user.id = token.id as string;
+          }
+          return session;
+       },
+    },
+    pages:{
+       signIn :"/login",
+       error: "/login"
     },
     session:{
-        strategy:"jwt"
-    }
+        strategy:"jwt",
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+    },
+    secret: process.env.NEXTAUTH_SECRET
 }
