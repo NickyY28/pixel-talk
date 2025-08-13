@@ -4,6 +4,7 @@ import User from "@/models/User";
 
 export async function POST(request: NextRequest) {
     try {
+        await connectToDatabase();
         const {email,password} = await request.json();
         if(!email || !password) {
             return NextResponse.json(
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     } catch (error) {
         return NextResponse.json(
-            {error: "failed to register user"},
+            {error: "failed to register user"+ error},
             {status: 500}
         )
         
